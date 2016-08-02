@@ -1,8 +1,7 @@
 const electron = require('electron')
-// Module to control application life.
 const app = electron.app
-// Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
+const VK = require('vksdk')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -25,12 +24,13 @@ function createWindow () {
     // when you should delete the corresponding element.
     mainWindow = null
   })
+
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow)
+
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
@@ -49,5 +49,28 @@ app.on('activate', function () {
   }
 })
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
+app.on('ready', createWindow)
+
+var vkAuth = require('vk-auth')(5329877, 'messages');
+
+vkAuth.authorize('+380505488232', 'dimatelkisex', function(err, tokenParams) {
+    var vk = new VK({
+        'appId'     : 5329877,
+        'appSecret' : 'SNY83LI0pH56lWZqB3R5',
+        'mode'      : 'oauth',
+        'secure'    : true,
+        'https'     : true,
+        'language'  : 'ru'
+    });
+    console.log(tokenParams);
+    vk.setToken(tokenParams.access_token);
+    vk.request('messages.getDialogs');
+    vk.on('done:messages.getDialogs', function(_o) {
+        console.log(_o);
+    var    mainWindow = new BrowserWindow({width: 800, height: 600})
+
+        // and load the index.html of the app.
+        mainWindow.loadURL(_o.error.redirect_uri)
+    });
+
+});
